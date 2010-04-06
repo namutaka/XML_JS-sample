@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<members>
+	<member id='a'>
+		<id>aaaa</id>
+		<name>Aaa</name>
+	</member>
+	<member id='b'>
+		<id>bbb</id>
+		<name>Bbb</name>
+	</member>
+</members>
+

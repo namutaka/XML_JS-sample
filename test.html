@@ -1,0 +1,89 @@
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>test</title>
+		<script type="text/javascript">
+			<!--
+function loadXMLDoc(dname)
+{
+	if (window.XMLHttpRequest) {
+		xhttp=new XMLHttpRequest();
+	} else {
+		xhttp=new ActiveXObject("Microsoft.XMLHTTP");
+	}
+	xhttp.open("GET",dname,false);
+	xhttp.send("");
+	return xhttp.responseXML;
+}
+
+function getNodes(xmlDoc, path)
+{
+	if (xmlDoc.selectNodes) {
+		return xmlDoc.selectNodes(path);
+	} else {
+		return xmlDoc.evaluate(path, xmlDoc, null,
+				XPathResult.ANY_TYPE, null);
+	}
+}
+
+function parsequery() {
+	var searchstr=location.search;
+	var getquerystr=searchstr.substring(1);
+	var getqueries=getquerystr.split("&");
+	var queries=new Array();
+	for (qcnt in getqueries) {
+		var splited=getqueries[qcnt].split("=");
+		var qname=splited[0];
+		var qval=splited[1];
+		queries[qname]=qval;
+	}
+	return queries;
+}
+
+function transform(div, xml_doc, xsl_doc)
+{
+	if (typeof XSLTProcessor != "undefined") {
+		var xsl_proc = new XSLTProcessor ();
+		xsl_proc.importStylesheet (xsl_doc);
+		var node = xsl_proc.transformToFragment (xml_doc, document);
+
+		div.innerHTML = "";
+		div.appendChild (node);
+	}
+	else if (typeof xml_doc.transformNode != "undefined") {
+		div.innerHTML = xml_doc.transformNode (xsl_doc);
+	}
+	else {
+		div.innerHTML = "XSLT not supported in browser.";
+	}
+}
+
+var xmlDoc, xslDoc, path;
+function load()
+{
+	var q = parsequery();
+
+	xmlDoc = loadXMLDoc("member.xml");
+	path = "/members/member[@id='" + q['id'] + "']/name/text()";
+	try {
+		name = getNodes(xmlDoc, path).iterateNext().nodeValue;
+	} catch(e) {
+		name = 'aaa';
+	}
+
+	xslDoc = loadXMLDoc("member.xslt");
+
+	var zzz = document.getElementById('zzz');
+	transform(zzz, xmlDoc, xslDoc);
+}
+
+			//-->
+		</script>
+	</head>
+	<body onload="load()">
+		test
+		<div id="zzz">
+		</div>
+	</body>
+</html>
+
