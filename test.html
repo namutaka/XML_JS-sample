@@ -16,13 +16,13 @@ function loadXMLDoc(dname)
 	return xhttp.responseXML;
 }
 
-function getNodes(xmlDoc, path)
+function getNode(xmlDoc, path)
 {
 	if (xmlDoc.selectNodes) {
-		return xmlDoc.selectNodes(path);
+		return xmlDoc.selectSingleNode(path);
 	} else {
 		return xmlDoc.evaluate(path, xmlDoc, null,
-				XPathResult.ANY_TYPE, null);
+				XPathResult.ANY_TYPE, null).iterateNext();
 	}
 }
 
@@ -50,6 +50,13 @@ function transform(div, xml_doc, xsl_doc)
 		div.innerHTML = "";
 		div.appendChild (node);
 	}
+	else if (typeof ActiveXObject != "undefined") {
+		var xslProc = xslTemp.createProcessor();
+		xslProc.input = xml_doc;
+		xslProc.transform;
+
+		div.innerHTML = xslProc.output;
+	}
 	else if (typeof xml_doc.transformNode != "undefined") {
 		div.innerHTML = xml_doc.transformNode (xsl_doc);
 	}
@@ -58,7 +65,7 @@ function transform(div, xml_doc, xsl_doc)
 	}
 }
 
-var xmlDoc, xslDoc, path;
+var xmlDoc, xslDoc, path, xslTemp;
 function load()
 {
 	var q = parsequery();
@@ -66,12 +73,20 @@ function load()
 	xmlDoc = loadXMLDoc("member.xml");
 	path = "/members/member[@id='" + q['id'] + "']/name/text()";
 	try {
-		name = getNodes(xmlDoc, path).iterateNext().nodeValue;
+		name = getNodes(xmlDoc, path).nodeValue;
 	} catch(e) {
 		name = 'aaa';
 	}
+	if (window.ActiveXObject) {
+		xslDoc = new ActiveXObject("Msxml2.FreeThreadedDOMDocument");
+		xslDoc.async = false;
+		xslDoc.load("member.xslt");
 
-	xslDoc = loadXMLDoc("member.xslt");
+		xslTemp = new ActiveXObject("Msxml2.XSLTemplate");
+		xslTemp.stylesheet = xslDoc;
+	} else {
+		xslDoc = loadXMLDoc("member.xslt");
+	}
 
 	var zzz = document.getElementById('zzz');
 	transform(zzz, xmlDoc, xslDoc);
@@ -79,6 +94,14 @@ function load()
 
 			//-->
 		</script>
+		<style type="text/css">
+			<!--
+			table, td {
+			background: #DDD;
+			border: 1px solid;
+			}
+			-->
+		</style>
 	</head>
 	<body onload="load()">
 		test
